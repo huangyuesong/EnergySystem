@@ -1,0 +1,1 @@
+export const serverUrl = `http://10.108.217.190:8080/EnergySystem2/`;
