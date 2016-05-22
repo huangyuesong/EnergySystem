@@ -7,6 +7,8 @@ import {
 import Login from './Login';
 import MapView from './Map';
 import Management from './Management';
+import SiteDetail from './SiteDetail';
+import MacRoomDetail from './MacRoomDetail';
 
 export default class Nav extends Component {
 	_renderScene (route, navigator) {
@@ -22,6 +24,14 @@ export default class Nav extends Component {
 			case 'Management':
 				return (
 					<Management navigator={navigator} {...route.props} />
+				);
+			case 'SiteDetail':
+				return (
+					<SiteDetail navigator={navigator} {...route.props} />
+				);
+			case 'MacRoomDetail':
+				return (
+					<MacRoomDetail navigator={navigator} {...route.props} />
 				);
 		}
 	}

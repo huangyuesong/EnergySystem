@@ -18,19 +18,30 @@ export default class Login extends Component {
 		this.state = {
 			username: '',
 			password: '',
+			loading: false,
 		};
 	}
 
 	_onLoginPress () {
+		if (this.state.loading) return;
+
 		let form = new FormData();
 		form.append('username', this.state.username);
 		form.append('password', this.state.password);
+
+		this.setState({
+			loading: true,
+		});
 
 		fetch(`${serverUrl}/mobileLoginIn`, {
 			method: 'post',
 			body: form,
 		}).then(res=> res.json())
 			.then(json=> {
+				this.setState({
+					loading: false,
+				});
+
 				if (json.success) {
 					if (json.isAdministrator) {
 						Alert.alert('您是系统管理员，要进入管理界面吗？', null, [
@@ -41,6 +52,7 @@ export default class Login extends Component {
 									props: {
 										username: this.state.username,
 										password: this.state.password,
+										isAdministrator: json.isAdministrator,
 									},
 								});
 							}},
@@ -69,17 +81,23 @@ export default class Login extends Component {
 					Alert.alert(json.errors);
 				}
 			})
-			.catch(err=> Alert.alert(err));
+			.catch(err=> {
+				this.setState({
+					loading: false,
+				}, ()=> Alert.alert(err));
+			});
 	}
 
 	render () {
 		return (
 			<View style={styles.container}>
 				<TextInput style={styles.input} 
+					value={this.state.username}
 					placeholder="用户名" 
 					autoCapitalize="none"
 					onChangeText={text=> this.setState({username: text})} />
 				<TextInput style={styles.input} 
+					value={this.state.password}
 					placeholder="密码" 
 					secureTextEntry={true}
 					onChangeText={text=> this.setState({password: text})} />

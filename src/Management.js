@@ -41,6 +41,7 @@ export default class Management extends Component {
 			fetchMoreData: true,
 			sites: [],
 			macRooms: [],
+			backFromDetail: false,
 		};
 	}
 
@@ -278,10 +279,17 @@ export default class Management extends Component {
 								.cloneWithRows(this.state.sites)}
 							renderRow={(rowData, sectionID, rowID)=> {
 								return (
-									<View style={{height: 50, justifyContent: 'center'}}>
-										<Text>{rowData.name}</Text>
-										<Text>{rowData.city}</Text>
-									</View>
+									<TouchableOpacity
+											onPress={()=> this.props.navigator.push({
+												name: 'SiteDetail',
+												index: 2,
+												props: rowData,
+											})} >
+										<View style={{height: 50, justifyContent: 'center'}}>
+											<Text>{rowData.name}</Text>
+											<Text>{rowData.city}</Text>
+										</View>
+									</TouchableOpacity>
 								);
 							}}
 							renderScrollComponent={props => <RecyclerViewBackedScrollView {...props} />}
@@ -310,10 +318,17 @@ export default class Management extends Component {
 								.cloneWithRows(this.state.macRooms)}
 							renderRow={(rowData, sectionID, rowID)=> {
 								return (
-									<View style={{height: 50, justifyContent: 'center'}}>
-										<Text>{rowData.name}</Text>
-										<Text>{rowData.city}</Text>
-									</View>
+									<TouchableOpacity
+											onPress={()=> this.props.navigator.push({
+												name: 'MacRoomDetail',
+												index: 2,
+												props: rowData,
+											})} >
+										<View style={{height: 50, justifyContent: 'center'}}>
+											<Text>{rowData.name}</Text>
+											<Text>{rowData.city}</Text>
+										</View>
+									</TouchableOpacity>
 								);
 							}}
 							renderScrollComponent={props => <RecyclerViewBackedScrollView {...props} />}
@@ -334,9 +349,65 @@ export default class Management extends Component {
 							props: {
 								username: this.props.username,
 								password: this.props.password,
+								isAdministrator: true,
 							},
 						})}>
 					<Text style={styles.mapButtonText}>去地图</Text>
+				</TouchableOpacity>
+				<TouchableOpacity style={styles.newButtonWrapper}
+						onPress={()=> {
+							if (this.state.selectedTab) {
+								this.props.navigator.push({
+									name: 'MacRoomDetail',
+									index: 2,
+									props: {
+										new: true,
+										id: '',
+										area: '',
+										city: '',
+										identityNo: '',
+										isFlag: '',
+										latitude: '',
+										longitude: '',
+										name: '',
+										powerId: '',
+										powerPrice: '',
+										typeId: '',
+										floor: '',
+										floorHeight: '',
+										devicePercent: '',
+									},
+								});
+							} else {
+								let date = new Date();
+								this.props.navigator.push({
+									name: 'SiteDetail',
+									index: 2,
+									props: {
+										new: true,
+										id: '',
+										area: '',
+										carrierCount: '',
+										city: '',
+										identityNo: '',
+										isFlag: '',
+										latitude: '',
+										longitude: '',
+										name: '',
+										powerId: '',
+										powerPrice: '',
+										typeId: '',
+										useDate: [
+											date.getFullYear(),
+											date.getMonth() + 1,
+											date.getDate(),
+										].join('-'),
+										wallInfo: '',
+									},
+								});
+							}
+						}}>
+					<Text style={styles.newButtonText}>新增{this.state.selectedTab ? '机房' : '基站'}</Text>
 				</TouchableOpacity>
 			</View>
 		);
@@ -346,6 +417,7 @@ export default class Management extends Component {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: 'white',
 	},
 	pickerWrapper: {
 		height: 35,
@@ -366,10 +438,13 @@ const styles = StyleSheet.create({
 		height: 40,
 		flexDirection: 'row',
 		marginVertical: 3,
+		paddingHorizontal: 2,
 	},
 	searchInput: {
 		flex: 1,
 		paddingHorizontal: 10,
+		borderWidth: 1,
+		borderColor: 'rgba(0, 0, 0, 0.2)',
 		borderRadius: 10,
 		backgroundColor: 'white',
 		color: 'black',
@@ -398,5 +473,21 @@ const styles = StyleSheet.create({
 	},
 	mapButtonText: {
 		fontSize: 12,
+	},
+	newButtonWrapper: {
+		width: 50,
+		height: 50,
+		backgroundColor: 'white',
+		borderWidth: 1,
+		borderColor: 'rgba(0, 0, 0, 0.2)',
+		borderRadius: 50,
+		position: 'absolute',
+		right: 5,
+		bottom: 120,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	newButtonText: {
+		fontSize: 10,
 	},
 });
