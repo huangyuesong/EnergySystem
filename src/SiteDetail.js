@@ -10,9 +10,14 @@ import {
 	Switch,
 	DatePickerIOS,
 	Alert,
+	Platform,
+	PickerIOS,
 } from 'react-native';
 
 import Header from './Header';
+import PickerAndroid from 'react-native-picker-android';
+
+let Picker = Platform.OS === 'ios' ? PickerIOS : PickerAndroid;
 
 import { serverUrl } from '../config';
 
@@ -42,7 +47,7 @@ export default class SiteDetail extends Component {
 			carrierCount: carrierCount,
 			city: city,
 			identityNo: identityNo,
-			isFlag: isFlag || false,
+			isFlag: isFlag || 0,
 			latitude: latitude,
 			longitude: longitude,
 			name: name,
@@ -51,6 +56,7 @@ export default class SiteDetail extends Component {
 			typeId: typeId,
 			useDate: useDate.substring(0, 10),
 			wallInfo: wallInfo,
+			districts: [],
 		};
 	}
 
@@ -111,6 +117,17 @@ export default class SiteDetail extends Component {
 					Alert.alert(json.errors);
 				}
 			})
+			.catch(err=> Alert.alert('Network Error!'));
+	}
+
+	componentDidMount () {
+		fetch(`${serverUrl}/getDistrictList`)
+			.then(res=> res.json())
+			.then(json=> this.setState({
+				districts: json.districts,
+				city: this.props.city || 
+					json.districts[0].province.concat(json.districts[0].city).concat(json.districts[0].county),
+			}))
 			.catch(err=> Alert.alert('Network Error!'));
 	}
 
@@ -198,6 +215,18 @@ export default class SiteDetail extends Component {
 								useDate: [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-'),
 							});
 						}} />
+					<Text>所在区域：</Text>
+					<Picker selectedValue={this.state.city || 0}
+							onValueChange={value=> this.setState({city: value})}>
+						{
+							this.state.districts.map(_district=> 
+								<Picker.Item
+									key={_district.id}
+									label={`${_district.province}${_district.city}${_district.county}`}
+									value={`${_district.province}${_district.city}${_district.county}`} />
+							)
+						}
+					</Picker>
 				</ScrollView>
 			</View>
 		);

@@ -9,9 +9,14 @@ import {
 	ScrollView,
 	Switch,
 	Alert,
+	Platform,
+	PickerIOS,
 } from 'react-native';
 
 import Header from './Header';
+import PickerAndroid from 'react-native-picker-android';
+
+let Picker = Platform.OS === 'ios' ? PickerIOS : PickerAndroid;
 
 import { serverUrl } from '../config';
 
@@ -34,13 +39,14 @@ export default class MacRoomDetail extends Component {
 			floor,
 			floorHeight,
 			devicePercent,
+			buildingId,
 		} = props;
 
 		this.state = {
 			area: area,
 			city: city,
 			identityNo: identityNo,
-			isFlag: isFlag || false,
+			isFlag: isFlag || 0,
 			latitude: latitude,
 			longitude: longitude,
 			name: name,
@@ -50,6 +56,8 @@ export default class MacRoomDetail extends Component {
 			floor: floor,
 			floorHeight: floorHeight,
 			devicePercent: devicePercent,
+			buildings: [],
+			buildingId: buildingId,
 		};
 	}
 
@@ -110,6 +118,16 @@ export default class MacRoomDetail extends Component {
 					Alert.alert(json.errors);
 				}
 			})
+			.catch(err=> Alert.alert('Network Error!'));
+	}
+
+	componentDidMount () {
+		fetch(`${serverUrl}/getBuildingList`)
+			.then(res=> res.json())
+			.then(json=> this.setState({
+				buildings: json.buildings,
+				buildingId: json.buildings[0].id,
+			}))
 			.catch(err=> Alert.alert('Network Error!'));
 	}
 
@@ -194,6 +212,18 @@ export default class MacRoomDetail extends Component {
 					<Switch style={styles.switch}
 						value={this.state.isFlag ? true : false}
 						onValueChange={value=> this.setState({isFlag: value ? 1 : 0})} />
+					<Text>所在机楼：</Text>
+					<Picker selectedValue={this.state.buildingId || 0}
+							onValueChange={value=> this.setState({buildingId: value})}>
+						{
+							this.state.buildings.map(_building=> 
+								<Picker.Item
+									key={_building.id}
+									label={[_building.name, _building.city].join(',')}
+									value={_building.id} />
+							)
+						}
+					</Picker>
 				</ScrollView>
 			</View>
 		);
